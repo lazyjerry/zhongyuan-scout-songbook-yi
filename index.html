@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中原童軍團歌本-《逸》</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .page-container {
+            perspective: 1000px;
+        }
+        .page {
+            transform-style: preserve-3d;
+            transition: opacity 0.3s ease, transform 0.5s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            opacity: 1;
+        }
+        .page.fade-out {
+            opacity: 0;
+        }
+        .page.fade-in {
+            opacity: 1;
+        }
+        .page img {
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+        .orientation-warning {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            flex-direction: column;
+        }
+        .swipe-area {
+            position: absolute;
+            top: 0;
+            width: 20%;
+            height: 100%;
+            z-index: 10;
+        }
+        .swipe-left {
+            left: 0;
+        }
+        .swipe-right {
+            right: 0;
+        }
+        .page-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 20;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        .page-nav-btn:hover {
+            opacity: 1;
+        }
+        .prev-btn {
+            left: 10px;
+        }
+        .next-btn {
+            right: 10px;
+        }
+        @media (orientation: portrait) {
+            .orientation-warning {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="orientation-warning items-center justify-center text-white text-center p-4">
+        <i class="fas fa-rotate fa-5x mb-6 animate-spin"></i>
+        <h1 class="text-2xl font-bold mb-2">建議橫向瀏覽</h1>
+        <p class="text-lg mb-6">請將您的裝置旋轉至橫向模式以獲得最佳閱讀體驗。</p>
+        <button onclick="continueAnyway()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            繼續瀏覽
+        </button>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">中原童軍團歌本-《逸》</h1>
+        
+        <div class="flex justify-center items-center mb-6">
+            <div class="relative w-full max-w-4xl">
+                <div class="page-container flex justify-center items-center">
+                    <div id="pages" class="flex gap-4 items-center">
+                        <!-- Pages will be inserted here by JavaScript -->
+                    </div>
+                </div>
+                
+                <button id="prevBtn" class="page-nav-btn prev-btn bg-gray-800 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button id="nextBtn" class="page-nav-btn next-btn bg-gray-800 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <div class="swipe-area swipe-left" id="swipeLeft"></div>
+                <div class="swipe-area swipe-right" id="swipeRight"></div>
+            </div>
+        </div>
+        
+        <div class="flex justify-center items-center gap-4">
+            <button id="firstPageBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+                <i class="fas fa-step-backward mr-2"></i>首頁
+            </button>
+            <div class="flex items-center gap-2">
+                <input type="number" id="pageInput" min="1" class="w-16 text-center border rounded py-1">
+                <span id="totalPages" class="text-gray-600">/ 0</span>
+            </div>
+            <button id="lastPageBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+                末頁<i class="fas fa-step-forward ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 圖片路徑前綴
+        const imagePathPrefix = "./images/";
+        
+        // 圖片陣列
+        const imageFiles = [
+            "封面.JPG", "A1.JPG", "A2.JPG", "A3.JPG", "A4.JPG", "A5.JPG", 
+            "A6.JPG", "A7.JPG", "A8.JPG", "A9.JPG", "A10.JPG", "A11.JPG", 
+            "A12.JPG", "A13.JPG", "Page1.JPG", "Page2.JPG", "Page3.JPG", 
+            "Page4.JPG", "Page5.JPG", "Page6.JPG", "Page7.JPG", "Page8.JPG", 
+            "Page9.JPG", "Page10.JPG", "Page11.JPG", "Page12.JPG", "Page13.JPG", 
+            "Page14.JPG", "Page15.JPG", "Page16.JPG", "Page17.JPG", "Page18.JPG", 
+            "Page19.JPG", "Page20.JPG", "Page21.JPG", "Page22.JPG", "Page23.JPG", 
+            "Page24.JPG", "Page25.JPG", "Page26.JPG", "Page27.JPG", "Page28.JPG", 
+            "Page29.JPG", "Page30.JPG", "Page31.JPG", "Page32.JPG", "Page33.JPG", 
+            "Page34.JPG", "Page35.JPG", "Page36.JPG", "Page37.JPG", "Page38.JPG", 
+            "Page39.JPG", "Page40.JPG", "Page41.JPG", "Page42.JPG", "Page43.JPG", 
+            "Page44.JPG", "Page45.JPG", "Page46.JPG", "Page47.JPG", "Page48.JPG", 
+            "Page49.JPG", "Page50.JPG", "Page51.JPG", "Page52.JPG", "Page53.JPG", 
+            "Page54.JPG", "Page55.JPG", "Page56.JPG", "Page57.JPG", "Page58.JPG", 
+            "Page59.JPG", "Page60.JPG", "Page61.JPG", "Page62.JPG", "Page63.JPG", 
+            "Page64.JPG", "Page65.JPG", "Page66.JPG", "Page67.JPG", "Page68.JPG", 
+            "Page69.JPG", "Page70.JPG", "Page71.JPG", "Page72.JPG", "Page73.JPG", 
+            "Page74.JPG", "Page75.JPG", "Page76.JPG", "Page77.JPG", "Page78.JPG", 
+            "Page79.JPG", "Page80.JPG", "Page81.JPG", "Page82.JPG", "Page83.JPG", 
+            "Page84.JPG", "Page85.JPG", "Page86.JPG", "Page87.JPG", "Page88.JPG", 
+            "Page89.JPG", "Page90.JPG", "Page91.JPG", "Page92.JPG", "Page93.JPG", 
+            "Page94.JPG", "Page95.JPG", "Page96.JPG", "Page97.JPG", "Page98.JPG", 
+            "Page99.JPG", "Page100.JPG", "Page101.JPG", "Page102.JPG", "Page103.JPG", 
+            "Page104.JPG", "Page105.JPG", "Page106.JPG", "Page107.JPG", "Page108.JPG", 
+            "Page109.JPG", "Page110.JPG", "Page111.JPG", "Page112.JPG", "Page113.JPG", 
+            "Page114.JPG", "Page115.JPG", "Page116.JPG", "Page117.JPG", "Page118.JPG", 
+            "Page119.JPG", "Page120.JPG", "Page121.JPG", "Page122.JPG", "Page123.JPG", 
+            "Page124.JPG", "Page125.JPG", "Page126.JPG", "Page127.JPG", "Page128.JPG", 
+            "Page129.JPG", "Page130.JPG", "Page131.JPG", "Page132.JPG", "Page133.JPG", 
+            "Page134.JPG", "Page135.JPG", "Page136.JPG", "Page137.JPG", "Page138.JPG", 
+            "Page139.JPG", "Page140.JPG", "Page141.JPG", "Page142.JPG", "Page143.JPG", 
+            "Page144.JPG", "Page145.JPG", "Page146.JPG", "Page147.JPG", "Page148.JPG", 
+            "Page149.JPG", "Page150.JPG", "Page151.JPG", "Page152.JPG", "Page153.JPG", 
+            "Page154.JPG", "Page155.JPG", "Page156.JPG", "Page157.JPG", "Page158.JPG", 
+            "Page159.JPG", "Page160.JPG", "Page161.JPG", "Page162.JPG", "Page163.JPG", 
+            "Page164.JPG", "Page165.JPG", "Page166.JPG", "Page167.JPG", "Page168.JPG", 
+            "Page169.JPG", "Page170.JPG", "Page171.JPG", "Page172.JPG", "Page173.JPG", 
+            "Page174.JPG", "Page175.JPG", "Page176.JPG", "Page177.JPG", "Page178.JPG", 
+            "Page179.JPG", "Page180.JPG", "Page181.JPG", "Page182.JPG", "Page183.JPG", 
+            "Page184.JPG", "Page185.JPG", "Page186.JPG", "Page187.JPG", "Page188.JPG", 
+            "Page189.JPG", "Page190.JPG", "Page191.JPG", "Page192.JPG", "Page193.JPG", 
+            "Page194.JPG", "Page195.JPG", "Page196.JPG", "Page197.JPG", "Page198.JPG", 
+            "Page199.JPG", "Page200.JPG", "Page201.JPG", "Page202.JPG", "Page203.JPG", 
+            "Page204.JPG", "Page205.JPG", "Page206.JPG", "Page207.JPG", "Page208.JPG", 
+            "Page209.JPG", "Page210.JPG", "Page211.JPG", "Page212.JPG", "Page213.JPG", 
+            "Page214.JPG", "Page215.JPG", "Page216.JPG", "Page217.JPG", "Page218.JPG", 
+            "Page219.JPG", "Page220.JPG", "Page221.JPG", "Page222.JPG", "Page223.JPG", 
+            "Page224.JPG", "Page225.JPG", "Page226.JPG", "Page227.JPG", "Page228.JPG", 
+            "Page229.JPG", "Page230.JPG", "Page231.JPG", "Page232.JPG", "Page233.JPG", 
+            "Page234.JPG", "Page235.JPG", "B1.JPG", "B2.JPG", "B3.JPG", "B4.JPG", 
+            "B5.JPG", "B6.JPG", "B7.JPG", "B8.JPG", "B9.JPG", "IMG_2674.JPG", 
+            "IMG_2675.JPG", "IMG_2676.JPG", "IMG_2677.JPG", "IMG_2678.JPG", "IMG_2688.JPG", 
+            "IMG_2689.JPG", "封底.JPG"
+        ];
+
+        // DOM elements
+        const pagesContainer = document.getElementById('pages');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const firstPageBtn = document.getElementById('firstPageBtn');
+        const lastPageBtn = document.getElementById('lastPageBtn');
+        const pageInput = document.getElementById('pageInput');
+        const totalPagesSpan = document.getElementById('totalPages');
+        const swipeLeft = document.getElementById('swipeLeft');
+        const swipeRight = document.getElementById('swipeRight');
+        const orientationWarning = document.querySelector('.orientation-warning');
+
+        // State variables
+        let currentPage = 1;
+        let isMobile = window.innerWidth <= 768;
+        let ignoreOrientationWarning = localStorage.getItem('ignoreOrientationWarning') === 'true';
+
+        // Initialize
+        function init() {
+            totalPagesSpan.textContent = `/ ${imageFiles.length}`;
+            pageInput.max = imageFiles.length;
+            
+            // Load saved page from localStorage
+            const savedPage = localStorage.getItem('songbookCurrentPage');
+            if (savedPage) {
+                currentPage = parseInt(savedPage);
+                if (currentPage < 1) currentPage = 1;
+                if (currentPage > imageFiles.length) currentPage = imageFiles.length;
+            }
+            
+            updatePages();
+            setupEventListeners();
+            
+            if (ignoreOrientationWarning) {
+                orientationWarning.style.display = 'none';
+            }
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            prevBtn.addEventListener('click', goToPrevPage);
+            nextBtn.addEventListener('click', goToNextPage);
+            firstPageBtn.addEventListener('click', () => goToPage(1));
+            lastPageBtn.addEventListener('click', () => goToPage(imageFiles.length));
+            pageInput.addEventListener('change', handlePageInput);
+            
+            // Swipe/touch events
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            swipeLeft.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            swipeLeft.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+            
+            swipeRight.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            swipeRight.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+            
+            // Click events for swipe areas (for desktop)
+            swipeLeft.addEventListener('click', goToPrevPage);
+            swipeRight.addEventListener('click', goToNextPage);
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    goToPrevPage();
+                } else if (e.key === 'ArrowRight') {
+                    goToNextPage();
+                }
+            });
+            
+            // Window resize
+            window.addEventListener('resize', handleResize);
+        }
+
+        function handleSwipe() {
+            const threshold = 50;
+            const difference = touchStartX - touchEndX;
+            
+            if (difference > threshold) {
+                // Swipe left (next page)
+                goToNextPage();
+            } else if (difference < -threshold) {
+                // Swipe right (previous page)
+                goToPrevPage();
+            }
+        }
+
+        function handlePageInput() {
+            const pageNum = parseInt(pageInput.value);
+            if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= imageFiles.length) {
+                goToPage(pageNum);
+            } else {
+                pageInput.value = currentPage;
+            }
+        }
+
+        function handleResize() {
+            const newIsMobile = window.innerWidth <= 768;
+            if (newIsMobile !== isMobile) {
+                isMobile = newIsMobile;
+                updatePages();
+            }
+        }
+
+        function goToPage(pageNum) {
+            if (pageNum < 1) pageNum = 1;
+            if (pageNum > imageFiles.length) pageNum = imageFiles.length;
+            
+            currentPage = pageNum;
+            localStorage.setItem('songbookCurrentPage', currentPage.toString());
+            updatePages();
+        }
+
+        function goToPrevPage() {
+            if (currentPage > 1) {
+                // 電腦版一次跳兩頁，手機版一次一頁
+                const step = isMobile ? 1 : 2;
+                goToPage(currentPage - step);
+            }
+        }
+
+        function goToNextPage() {
+            if (currentPage < imageFiles.length) {
+                // 電腦版一次跳兩頁，手機版一次一頁
+                const step = isMobile ? 1 : 2;
+                goToPage(currentPage + step);
+            }
+        }
+
+        async function updatePages() {
+            // Fade out current pages
+            const currentPages = Array.from(pagesContainer.children);
+            currentPages.forEach(page => {
+                page.classList.add('fade-out');
+            });
+            
+            // Wait for fade out to complete
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // Clear current pages
+            pagesContainer.innerHTML = '';
+            
+            // Update page input
+            pageInput.value = currentPage;
+            
+            // Determine which pages to show
+            let pagesToShow = [];
+            
+            if (isMobile) {
+                // Mobile - show single page
+                pagesToShow = [currentPage];
+            } else {
+                // Desktop - show two pages (even-odd pair)
+                if (currentPage % 2 === 0) {
+                    // Even page - show previous and current
+                    pagesToShow = [currentPage - 1, currentPage];
+                } else {
+                    // Odd page - show current and next (if exists)
+                    pagesToShow = [currentPage];
+                    if (currentPage < imageFiles.length) {
+                        pagesToShow.push(currentPage + 1);
+                    }
+                }
+            }
+            
+            // Create page elements
+            pagesToShow.forEach(pageNum => {
+                if (pageNum >= 1 && pageNum <= imageFiles.length) {
+                    const pageDiv = document.createElement('div');
+                    pageDiv.className = 'page bg-white rounded-lg overflow-hidden';
+                    
+                    const img = document.createElement('img');
+                    img.src = imagePathPrefix + imageFiles[pageNum - 1];
+                    img.alt = `Page ${pageNum}`;
+                    img.className = 'w-full h-full object-contain max-h-[80vh]';
+                    
+                    pageDiv.appendChild(img);
+                    pageDiv.classList.add('fade-in');
+                    pagesContainer.appendChild(pageDiv);
+                }
+            });
+            
+            // Update button states
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= imageFiles.length;
+            firstPageBtn.disabled = currentPage <= 1;
+            lastPageBtn.disabled = currentPage >= imageFiles.length;
+        }
+
+        function continueAnyway() {
+            ignoreOrientationWarning = true;
+            localStorage.setItem('ignoreOrientationWarning', 'true');
+            orientationWarning.style.display = 'none';
+        }
+
+        // Initialize the app
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

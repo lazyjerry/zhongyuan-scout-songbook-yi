@@ -1,0 +1,120 @@
+
+
+/* 頁面容器的 3D 透視效果 */
+.page-container {
+    perspective: 1000px;
+}
+/* 單頁樣式與動畫 */
+.page {
+    transform-style: preserve-3d;
+    transition: opacity 0.3s ease, transform 0.5s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    opacity: 1;
+}
+.page.fade-out {
+    opacity: 0;
+}
+.page.fade-in {
+    opacity: 1;
+}
+.page img {
+    user-select: none;
+    -webkit-user-drag: none;
+}
+/* 橫向建議提示樣式 */
+.orientation-warning {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    flex-direction: column;
+}
+/* 左右滑動區域 */
+.swipe-area {
+    position: absolute;
+    top: 0;
+    width: 20%;
+    height: 100%;
+    z-index: 10;
+}
+.swipe-left {
+    left: 0;
+}
+.swipe-right {
+    right: 0;
+}
+/* 翻頁按鈕樣式 */
+.page-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+.page-nav-btn:hover {
+    opacity: 1;
+}
+.prev-btn {
+    left: 10px;
+}
+.next-btn {
+    right: 10px;
+}
+/* 直向時顯示橫向提示 */
+@media (orientation: portrait) {
+    .orientation-warning {
+        display: flex;
+    }
+}
+/* 圖片 Modal 動畫與樣式 */
+#imageModal {
+    transition: opacity 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#imageModal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.modal-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-prev {
+    left: 20px;
+}
+.modal-next {
+    right: 20px;
+}
+.modal-nav.hidden {
+    display: none;
+}
+
+@import "tailwindcss";

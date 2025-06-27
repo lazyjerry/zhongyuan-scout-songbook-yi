@@ -116,5 +116,6 @@
 .modal-nav.hidden {
     display: none;
 }
-
-@import "tailwindcss";
+.cursor-pointer{
+    cursor: pointer;
+}

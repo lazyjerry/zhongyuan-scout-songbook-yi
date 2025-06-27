@@ -317,9 +317,10 @@
                     const img = document.createElement('img');
                     img.src = imagePathPrefix + imageFiles[pageNum - 1];
                     img.alt = `Page ${pageNum}`;
-                    img.className = 'w-full h-full object-contain max-h-[80vh]';
+                    img.className = 'w-full h-full object-contain max-h-[80vh] cursor-pointer';
                     pageDiv.appendChild(img);
                     pageDiv.classList.add('fade-in');
+                    pageDiv.classList.add('transition-opacity', 'duration-300');
                     // 點擊圖片開啟 Modal
                     pageDiv.addEventListener('click', () => {
                         showModal(imagePathPrefix + imageFiles[pageNum - 1]);

@@ -97,6 +97,16 @@
             if (ignoreOrientationWarning) {
                 orientationWarning.style.display = 'none';
             }
+
+            // 依照網址參數設定頁碼
+            const urlParams = new URLSearchParams(window.location.search);
+            const pageParam = urlParams.get('page');
+            if (pageParam) {
+                const pageNum = parseInt(pageParam);
+                if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= imageFiles.length) {
+                    currentPage = pageNum;
+                }
+            }   
         }
 
         // ====== 註冊事件 ======
@@ -253,6 +263,10 @@
             firstPageBtn.disabled = currentPage <= 1;
             lastPageBtn.disabled = currentPage >= imageFiles.length;
 
+            // 依照當前頁數更新網址參數
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', currentPage);
+            window.history.replaceState({}, '', url.toString());
         }
 
         // ====== 忽略橫向提示 ======

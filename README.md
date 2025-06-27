@@ -67,7 +67,7 @@ npx tailwindcss -i ./input.css -o ./dist.css --minify
 ```html
 <link rel="stylesheet" href="./dist.css">
 ```
-更多詳細教學請參考：JerryZheli 部落格教學
+更多詳細教學請參考：[部落格教學](https://blog.jerryzheli.com/posts/2864)
 
 ⸻
 

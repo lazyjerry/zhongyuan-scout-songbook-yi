@@ -105,6 +105,7 @@
                 const pageNum = parseInt(pageParam);
                 if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= imageFiles.length) {
                     currentPage = pageNum;
+                    goToPage(pageNum);
                 }
             }   
         }
@@ -198,6 +199,11 @@
             localStorage.setItem('songbookCurrentPage', currentPage.toString());
             // 更新頁面顯示
             updatePages();
+
+            // 依照當前頁數更新網址參數
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', currentPage);
+            window.history.replaceState({}, '', url.toString());
         }
 
         // ====== 上一頁 ======
@@ -263,10 +269,7 @@
             firstPageBtn.disabled = currentPage <= 1;
             lastPageBtn.disabled = currentPage >= imageFiles.length;
 
-            // 依照當前頁數更新網址參數
-            const url = new URL(window.location.href);
-            url.searchParams.set('page', currentPage);
-            window.history.replaceState({}, '', url.toString());
+            
         }
 
         // ====== 忽略橫向提示 ======

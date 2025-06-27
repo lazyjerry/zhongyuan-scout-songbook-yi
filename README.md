@@ -43,12 +43,14 @@
 
 2. **安裝 Tailwind CSS CLI**  
 ```bash
-   npm install -D tailwindcss
-   npx tailwindcss init
-```　
-會生成 tailwind.config.js 設定檔
-3.	編寫 Tailwind 輸入 CSS
+npm install -D tailwindcss
+npx tailwindcss init
+```
+會生成 tailwind.config.js 設定檔。
+
+3. 編寫 Tailwind 輸入 CSS
 在專案根目錄新增 input.css，內容包含 Tailwind 指令：
+
 ```bash
 @tailwind base;
 @tailwind components;

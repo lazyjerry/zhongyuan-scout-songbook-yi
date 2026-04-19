@@ -8,7 +8,7 @@
 
 ## Demo 網站
 
-[https://songbook-yi.goblinapp.com/](https://songbook-yi.goblinapp.com/)
+[songbook-yi.jlab-app.cloud](songbook-yi.jlab-app.cloud)
 
 ---
 
